@@ -24,7 +24,7 @@ class DiscordBot extends Adapter
         @client.on 'ready', @.ready
         @client.on 'message', @.message
         
-        @client.loginWithToken @options.token, null, null, (err) ->
+        @client.login @options.token, null, null, (err) ->
           @robot.logger.error err
 
      ready: =>
@@ -41,12 +41,12 @@ class DiscordBot extends Adapter
 
         user = @robot.brain.userForId message.author.id
         user.room = message.channel.id
-        user.name = message.author.name
+        user.name = message.author.username
         user.id = message.author.id
         rooms[message.channel.id] ?= message.channel
 
         text = message.cleanContent 
-        if (message.channel instanceof Discord.PMChannel)
+        if (message.channel instanceof Discord.DMChannel)
           text = "#{@robot.name}: #{text}" if not text.match new RegExp( "^@?#{@robot.name}" )
 
         @robot.logger.debug text
@@ -73,7 +73,7 @@ class DiscordBot extends Adapter
           if chunkedMessage.length > 0
             chunk = chunkedMessage.shift()
             room = rooms[envelope.room]
-            @client.sendMessage room, chunk, ((err) =>
+            room.sendMessage chunk, ((err) =>
               remainingMessages = chunkedMessage.concat messages
               if err then @robot.logger.error err
               @send envelope, remainingMessages...)
@@ -83,7 +83,8 @@ class DiscordBot extends Adapter
         # exist in our envelope object
         user = envelope.user.name
         for msg in messages
-          @client.sendMessage rooms[envelope.room], "#{user} #{msg}", (err) ->
+          room = rooms[envelope.room]
+          room.sendMessage "#{user} #{msg}", (err) ->
                 @robot.logger.error err
 
 
