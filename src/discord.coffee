@@ -87,6 +87,9 @@ class DiscordBot extends Adapter
       room.sendMessage "<@#{user}> #{msg}", (err) ->
         @robot.logger.error err
 
+  topic: (envelope, strings...) ->
+    room = rooms[envelope.room]
+    room.setTopic(strings.join(" "))
 
 exports.use = (robot) ->
   new DiscordBot robot
