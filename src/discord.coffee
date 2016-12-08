@@ -91,5 +91,8 @@ class DiscordBot extends Adapter
     room = rooms[envelope.room]
     room.setTopic(strings.join(" "))
 
+  close: () ->
+    @client.destroy()
+
 exports.use = (robot) ->
   new DiscordBot robot
