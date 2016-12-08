@@ -79,12 +79,12 @@ class DiscordBot extends Adapter
           @send envelope, remainingMessages...)
 
   reply: (envelope, messages...) ->
-    # discord.js reply function looks for a 'sender' which doesn't
-    # exist in our envelope object
-    user = envelope.user.id
-    for msg in messages
-      room = rooms[envelope.room]
-      room.sendMessage "<@#{user}> #{msg}", (err) ->
+    rooms[envelope.room].fetchMessage(envelope.message.id)
+      .then (message) =>
+        for msg in messages
+          message.reply msg, (err) =>
+            @robot.logger.error err
+      , (err) =>
         @robot.logger.error err
 
   topic: (envelope, strings...) ->
